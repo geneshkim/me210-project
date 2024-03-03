@@ -1,19 +1,19 @@
 // need two diff enable pins because want these motors to go diff speeds to turn
 #define IN1_A1   A5 // in1 and in2 control motor direction (okay for these to be synched)
 #define IN2_A1   7
-#define EN_A1    5
+#define EN_A1    11
 #define IN1_B1   A5
 #define IN2_B1   7
-#define EN_B1    6
+#define EN_B1    11
 
 // these two motors will be used when we want to move sideways to shoot
 // (so can be controlled by same pwm because no need to change direction)
 #define IN1_A2   A4 // in1 and in2 control motor direction (okay for these to be synched)
 #define IN2_A2   8
-#define EN_A2    11
+#define EN_A2    5
 #define IN1_B2   A4
 #define IN2_B2   8
-#define EN_B2    11
+#define EN_B2    6
 
 #include <L298NX2.h>
 
@@ -26,28 +26,28 @@ void setup() {
 
   Serial.begin(9600);
 
-  // first two motors
-  pinMode(IN1_A1, OUTPUT);
-  pinMode(IN2_A1, OUTPUT);
-  pinMode(EN_A1, OUTPUT);
-  pinMode(IN1_B1, OUTPUT);
-  pinMode(IN2_B1, OUTPUT);
-  pinMode(EN_B1, OUTPUT);
+  // // first two motors
+  // pinMode(IN1_A1, OUTPUT);
+  // pinMode(IN2_A1, OUTPUT);
+  // pinMode(EN_A1, OUTPUT);
+  // pinMode(IN1_B1, OUTPUT);
+  // pinMode(IN2_B1, OUTPUT);
+  // pinMode(EN_B1, OUTPUT);
 
-  digitalWrite(IN1_A1, HIGH); // in1 and in2 control motor direction (okay for these to be synched)
-  digitalWrite(IN2_A1, LOW);
+  // digitalWrite(IN1_A1, HIGH); // in1 and in2 control motor direction (okay for these to be synched)
+  // digitalWrite(IN2_A1, LOW);
 
-  // second two motors
-  pinMode(IN1_A2, OUTPUT);
-  pinMode(IN2_A2, OUTPUT);
-  pinMode(EN_A2, OUTPUT);
-  pinMode(IN1_B2, OUTPUT);
-  pinMode(IN2_B2, OUTPUT);
-  pinMode(EN_B2, OUTPUT);
+  // // second two motors
+  // pinMode(IN1_A2, OUTPUT);
+  // pinMode(IN2_A2, OUTPUT);
+  // pinMode(EN_A2, OUTPUT);
+  // pinMode(IN1_B2, OUTPUT);
+  // pinMode(IN2_B2, OUTPUT);
+  // pinMode(EN_B2, OUTPUT);
 
   // these two motors can have different speeds
-  myMotors1.setSpeedA(70); // random initial speed
-  myMotors1.setSpeedB(70); // random initial speed
+  myMotors1.setSpeedA(50); // random initial speed
+  myMotors1.setSpeedB(100); // random initial speed
 
   // other two motors must have same speed because same enable signal
   myMotors2.setSpeed(0);
