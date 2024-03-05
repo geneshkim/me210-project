@@ -1,6 +1,3 @@
-#include <MotorControl.h>
-#include <Arduino.h>
-
 
 /*
 
