@@ -1,7 +1,6 @@
 /*
 This sketch aims to be equivalent to the one Dylan originally uploaded to test the motors.
-MotorControl has instance variables latMotors and longMotors, in addition to the move forward/back, rotate left/right, shafe.
-
+Rather than instantiating lat/long motors, we can just instantiate a class of MotorControl by including MotorControl.h
 */
 
 
@@ -9,30 +8,18 @@ MotorControl has instance variables latMotors and longMotors, in addition to the
 
 
 void setup() {
-
-  Serial.begin(9600);
-  MotorControl motorcontrol;
-  // these two motors can have different speeds
-  motorcontrol.longMotors.setSpeed(255);
-  motorcontrol.latMotors.setSpeed(255);
-  motorcontrol.longMotors.forwardA();
-  motorcontrol.longMotors.backwardB();
+  MotorControl motors;
+  //these motors can have different speeds
+  motors.longMotors.setSpeed(255);
+  motors.latMotors.setSpeed(255);
+  motors.moveForward();
+  delay(1000);
+  motors.stopMotors();
+  motors.strafeRight();
+  delay(1000);
+  motors.stopMotors();
 }
 
 void loop() {
-  /*
-  motorcontrol.moveForward();
-  delay(1000);
-  motorcontrol.moveBackward();
-  delay(1000);
-  motorcontrol.rotateLeft();
-  delay(1000);
-  motorcontrol.rotateRight();
-  delay(1000);
-  */
-  // if detect line
-    // turn left/right to stay on line
-  // if all 3 IR sensors == 1 then at T-zone
-    // drive forward until detect line
 }
 

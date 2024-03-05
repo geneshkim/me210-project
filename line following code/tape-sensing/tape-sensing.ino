@@ -3,13 +3,14 @@ Implementation of tape sensing using three IR sensors
 Assumes turning left, turning right, and driving forward functions are already implemented
 */
 
+#include <MotorControl.h>
 
 //define constants and analog pins to read IR sensor values/enable pin to turn on/off IR sensing
 #define LIGHT_THRESHOLD        350  //empirically determined: if IR reading is higher than threshold, that sensor is on the tape.
 #define LEFT_IR_PIN         A0   
 #define MID_IR_PIN         A1   
 #define RIGHT_IR_PIN         A2   
-#define ENABLE_PIN         5   
+//#define ENABLE_PIN         5   
 
 
 //State definitions
@@ -42,7 +43,7 @@ void respToAllAreOnTape();
 
 
 void setup() {
-  Serial.begin(9600);
+  MotorControl motors;
   //initialize variables
   state = STATE_MOVING_FORWARD;
   bool leftIsOnTape = false;
@@ -140,27 +141,19 @@ void checkGlobalEvents(void) {
 }
 
 void handleMoveForward() {
-  //assumes this is implemented in driving/turning.
-  //Serial.println("We're moving forward. Wahoo!");
-  Serial.println(0);
+  motors.moveForward();
 }
 
 void handleTurnLeft() {
-  //assumes this is implemented in driving/turning.
-  //Serial.println("We're moving left. Wahoo!");
-  Serial.println(-1);
+  motors.rotateLeft();
 }
 
 void handleTurnRight() {
-  //assumes this is implemented in driving/turning.
-  // Serial.println("We're moving right. Wahoo!");
-  Serial.println(1);
+  motors.rotateRight();
 }
 
 void handleStop() {
-  //assumes this is implemented in driving/turning.
-  // Serial.println("We stopped. Wahoo!");
-  Serial.println(20);
+  motors.stopMotors();
 }
 
 bool testForLeftIsOnTape() {
