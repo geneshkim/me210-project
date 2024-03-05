@@ -5,7 +5,7 @@
 #include "config.h"
 
 // Initialize electronics
-HC_SR04<ECHO_PIN> sensor(TRIG_PIN);
+HC_SR04<ECHO_PIN> ultra(TRIG_PIN);
 
 ezButton STOP_butt(STOP_PIN);
 ezButton ORI_butt(ORIENT_PIN);
@@ -18,6 +18,14 @@ L298NX2 myMotors2(EN_A2, IN1_A2, IN2_A2, EN_B2, IN1_B2, IN2_B2);
 
 Servo gateServo;
 Servo celebServo;
+
+// Motor Control Functions
+void handleMoveForward();
+void handleTurnLeft();
+void handleTurnRight();
+void handleStop();
+void handleStrafeLeft();
+void handleStrafeRight();
 
 enum startzone {
   WAVING, // Power on initiation
@@ -34,6 +42,7 @@ enum contact {
 
 enum shooting {
   TO_SHOOT, // driving along wall to shooting zone
+  FORWARD_ADJUST,
   SHOOT, // open gate
   CELEB, // final celebration
   FINISH // end code
@@ -46,16 +55,26 @@ enum stateGroup {
   shootGroup    // shooting states
 };
 
+enum line_following {
+  STATE_STOPPED,
+  STATE_MOVING_FORWARD,
+  STATE_TURNING_LEFT,
+  STATE_TURNING_RIGHT
+};
+
 // initializing state trackers
 startzone startStates = WAVING;
 shooting shootStates = TO_SHOOT;
 contact contactStates = TO_DIAGONAL;
+line_following lineStates = STATE_MOVING_FORWARD;
 
 // tracking states
 stateGroup curStateGroup = startGroup;
 
-bool leftOrRight // true means strafe right to shooting, false means strafe left
+// other variables
+bool leftOrRight; // true means strafe right to shooting, false means strafe left
 unsigned long startTime;
+unsigned int dist_cm;
 
 
 void setup() {  
@@ -67,6 +86,8 @@ void setup() {
   L_butt.setDebounceTime(50);
   C_butt.setDebounceTime(50);
   R_butt.setDebounceTime(50);
+
+  ultra.begin();
 
   gateServo.attach(GATE_SERVO_PIN);
   celebServo.attach(CELEB_SERVO_PIN);
@@ -137,12 +158,14 @@ void loop() {
           break;
         case CROSS_BOX:
           if(toEdgeStartZone()) {       // keeps pushing forward until toEdgeStartZone returns true
-            startStates = TO_T_ZONE:
+            startStates = TO_T_ZONE;
           }
           break;
         case TO_T_ZONE:
           lineFollow();
-          curStateGroup = contactGroup;
+          if (lineStates == STATE_STOPPED) {
+            curStateGroup = contactGroup;
+          }
           break;
       }
 
@@ -218,6 +241,9 @@ void checkGlobalEvents() {
   C_butt.loop();
   R_butt.loop();
 
+  ultra.startMeasure();
+  dist_cm = ultra.getDist_cm();
+
   // ends after 2:10, or 130000 ms
   unsigned long curTime = millis();
   if((curTime - startTime) > 130000) {
@@ -232,6 +258,39 @@ void checkGlobalEvents() {
       // ends code
     }
   }
+}
+
+void handleForward() {
+  myMotors1.forward();
+}
+
+void handleTurnLeft() {
+  //assumes this is implemented in driving/turning.
+  //Serial.println("We're moving left. Wahoo!");
+  Serial.println(-1);
+}
+
+void handleTurnRight() {
+  //assumes this is implemented in driving/turning.
+  // Serial.println("We're moving right. Wahoo!");
+  Serial.println(1);
+}
+
+void handleStop() {
+  myMotors1.stop();
+  myMotors2.stop();
+}
+
+void handleStrafeLeft() {
+  // strafe left
+}
+
+void handleStrafeRight() {
+  // strafe right
+}
+
+void handleRotateLeftInPlace() {
+  // rotate left in place
 }
 
 // HC_SR04 code, will go in loop eventually
