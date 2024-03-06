@@ -1,3 +1,13 @@
+/*
+Implementation of motor control class as specified by MotorControl.h
+Intended to be used in other .ino sketches for modularity.
+*/
+
+
+#include "MotorControl.h"
+#include <Arduino.h> //to allow arduino macros in C++ class implementation
+
+
 
 /*
 
@@ -31,56 +41,47 @@
 #define IN2_RightMotor   8
 #define EN_RightMotor    6
 
-#include <L298NX2.h>
 
-// motor instance (longitudinal = forward/backwards, lateral = side to side)
-L298NX2 latMotors(EN_FrontMotor, IN1_FrontMotor, IN2_FrontMotor, EN_BackMotor, IN1_BackMotor, IN2_BackMotor);
-L298NX2 longMotors(EN_LeftMotor, IN1_LeftMotor, IN2_LeftMotor, EN_RightMotor, IN1_RightMotor, IN2_RightMotor);
+/*
+Constructor for motor control
+instantiates lat and long motors from L298NX2 library
+(longitudinal = forward/backwards, lateral = side to side)
+*/
+// MotorControl::MotorControl()
+// : latMotors(EN_FrontMotor, IN1_FrontMotor, IN2_FrontMotor, EN_BackMotor, IN1_BackMotor, IN2_BackMotor),
+//   longMotors(EN_LeftMotor, IN1_LeftMotor, IN2_LeftMotor, EN_RightMotor, IN1_RightMotor, IN2_RightMotor);{
+//   Serial.begin(9600);
+  
+//   pinMode(A5, OUTPUT);
+//   pinMode(A4, OUTPUT);
+// }
+//
 
-
-void setup() {
-
-  Serial.begin(9600);
-
-  // these two motors can have different speeds
-  longMotors.setSpeed(255);
-  latMotors.setSpeed(255);
-  pinMode(A5, OUTPUT);
-  pinMode(A4, OUTPUT);
-  moveForward();
-  delay(1000);
-  stopMotors();
-  strafeRight();
-  delay(1000);
-  stopMotors();
+MotorControl::MotorControl()
+: latMotors(EN_FrontMotor, IN1_FrontMotor, IN2_FrontMotor, EN_BackMotor, IN1_BackMotor, IN2_BackMotor),
+  longMotors(EN_LeftMotor, IN1_LeftMotor, IN2_LeftMotor, EN_RightMotor, IN1_RightMotor, IN2_RightMotor)
+{
 }
 
-void loop() {
-  // if detect line
-    // turn left/right to stay on line
-  // if all 3 IR sensors == 1 then at T-zone
-    // drive forward until detect line
-}
-
-//motor functions
+//motor functions as part of class (e.g. call MotorControl.moveForward() in separate .ino sketch)
 /* As it stands, we don't have individual forward/backward control for the longitudinal motors, so since we're not really changing speed,
 I wonder if it's better to have that ability to turn in place by having the two sets of motors sharing a set of input pins w/ individual enable pwm.
 */
-void moveForward() {
+void MotorControl::moveForward() {
   longMotors.setSpeed(255);
   latMotors.setSpeed(0);
   longMotors.forward();
   Serial.println("State: Moving Forward");
 }
 
-void moveBackward() {
+void MotorControl::moveBackward() {
   longMotors.setSpeed(255);
   latMotors.setSpeed(0);
   longMotors.backward();
   Serial.println("State: Moving Backward");
 }
 
-void rotateLeft() {
+void MotorControl::rotateLeft() {
   longMotors.setSpeed(255);
   latMotors.setSpeed(0);
   longMotors.forwardA();
@@ -88,7 +89,7 @@ void rotateLeft() {
   Serial.println("State: Turning Left");
 }
 
-void rotateRight() {
+void MotorControl::rotateRight() {
   longMotors.setSpeed(255);
   latMotors.setSpeed(0);
   longMotors.forwardB();
@@ -96,21 +97,21 @@ void rotateRight() {
   Serial.println("State: Turning Right");
 }
 
-void strafeLeft() {
+void MotorControl::strafeLeft() {
   longMotors.setSpeed(0);
   latMotors.setSpeed(255);
   latMotors.forward();
   Serial.println("State: Strafing Left");
 }
 
-void strafeRight() {
+void MotorControl::strafeRight() {
   longMotors.setSpeed(0);
   latMotors.setSpeed(255);
   latMotors.backward();
   Serial.println("State: Strafing Right");
 }
 
-void stopMotors() {
+void MotorControl::stopMotors() {
   longMotors.stop();
   latMotors.stop();
   Serial.println("State: Stopping");

@@ -4,7 +4,7 @@ Rather than instantiating lat/long motors, we can just instantiate a class of Mo
 */
 
 
-#include <MotorControl.h>
+#include "MotorControl.h"
 
 
 void setup() {
