@@ -3,9 +3,10 @@
 #include "Servo.h"
 #include <L298NX2.h>
 #include "config.h"
+#include <MotorControl.h>
 
 // Initialize electronics
-HC_SR04<ECHO_PIN> ultra(TRIG_PIN);
+HC_SR04 ultra(TRIG_PIN, ECHO_PIN, ECHO_PIN);
 
 ezButton STOP_butt(STOP_PIN);
 ezButton ORI_butt(ORIENT_PIN);
