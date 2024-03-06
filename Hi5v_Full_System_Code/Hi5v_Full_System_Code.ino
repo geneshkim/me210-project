@@ -3,30 +3,18 @@
 #include "Servo.h"
 #include <L298NX2.h>
 #include "config.h"
-#include <MotorControl.h>
+#include "MotorControl.h"
 
 // Initialize electronics
-HC_SR04 ultra(TRIG_PIN, ECHO_PIN, ECHO_PIN);
+// HC_SR04 ultra(TRIG_PIN, ECHO_PIN, ECHO_PIN);
 
-ezButton STOP_butt(STOP_PIN);
 ezButton ORI_butt(ORIENT_PIN);
 ezButton L_butt(BUMP_PIN_L);
 ezButton C_butt(BUMP_PIN_C);
 ezButton R_butt(BUMP_PIN_R);
 
-L298NX2 myMotors1(EN_A1, IN1_A1, IN2_A1, EN_B1, IN1_B1, IN2_B1);
-L298NX2 myMotors2(EN_A2, IN1_A2, IN2_A2, EN_B2, IN1_B2, IN2_B2);
-
 Servo gateServo;
 Servo celebServo;
-
-// Motor Control Functions
-void handleMoveForward();
-void handleTurnLeft();
-void handleTurnRight();
-void handleStop();
-void handleStrafeLeft();
-void handleStrafeRight();
 
 enum startzone {
   WAVING, // Power on initiation
@@ -76,50 +64,23 @@ stateGroup curStateGroup = startGroup;
 bool leftOrRight; // true means strafe right to shooting, false means strafe left
 unsigned long startTime;
 unsigned int dist_cm;
-
+MotorControl motors;
 
 void setup() {  
   Serial.begin(9600); 
   while(!Serial) continue;
- 
-  STOP_butt.setDebounceTime(100);
+
   ORI_butt.setDebounceTime(50);
   L_butt.setDebounceTime(50);
   C_butt.setDebounceTime(50);
   R_butt.setDebounceTime(50);
 
-  ultra.begin();
+  // ultra.begin();
 
   gateServo.attach(GATE_SERVO_PIN);
   celebServo.attach(CELEB_SERVO_PIN);
 
   gateServo.write(90); //  set to blocking position
-
-  // first two motors
-  pinMode(IN1_A1, OUTPUT);
-  pinMode(IN2_A1, OUTPUT);
-  pinMode(EN_A1, OUTPUT);
-  pinMode(IN1_B1, OUTPUT);
-  pinMode(IN2_B1, OUTPUT);
-  pinMode(EN_B1, OUTPUT);
-
-  digitalWrite(IN1_A1, HIGH); // in1 and in2 control motor direction (okay for these to be synched)
-  digitalWrite(IN2_A1, LOW);
-
-  // second two motors
-  pinMode(IN1_A2, OUTPUT);
-  pinMode(IN2_A2, OUTPUT);
-  pinMode(EN_A2, OUTPUT);
-  pinMode(IN1_B2, OUTPUT);
-  pinMode(IN2_B2, OUTPUT);
-  pinMode(EN_B2, OUTPUT);
-
-  // these two motors can have different speeds
-  myMotors1.setSpeedA(70); // random initial speed
-  myMotors1.setSpeedB(70); // random initial speed
-
-  // other two motors must have same speed because same enable signal
-  myMotors2.setSpeed(0);
 
   // IR pins. Rest of IR initializiation in Line_Following.ino
   pinMode(LEFT_IR_PIN, INPUT);
@@ -151,9 +112,9 @@ void loop() {
           }
           break;
         case ROTATE_IN_PLACE:
-          handleRotateLeftInPlace(); // choice between turning left / right is arbitrary
+          motors.rotateLeft(); // choice between turning left / right is arbitrary
           if(ORI_butt.isReleased()) {
-            handleStop();
+            motors.stopMotors();
             startStates = CROSS_BOX;
           }
           break;
@@ -188,25 +149,39 @@ void loop() {
     case shootGroup:
       switch (shootStates) {
         case TO_SHOOT:
+          /* code for not knowing the correct side
           if (leftOrRight) {
-            handleStrafeRight();
+            motors.strafeRight();
             if (R_butt.isPressed()) {
-              handleStop();
+              motors.stopMotors();
               shootStates = FORWARD_ADJUST;
             }
           } else {
-            handleStrafeLeft();
+            motors.strafeLeft();
             if (L_butt.isPressed()) {
-              handleStop();
+              motors.stopMotors();
               shootStates = FORWARD_ADJUST;
             }
           }
-          // need to implement ultrasonic sensor
+          */
+          // code for assuming starting on left side (A-side), thus strafe left
+          motors.strafeLeft();
+            if (L_butt.isPressed()) {
+              motors.stopMotors();
+              shootStates = FORWARD_ADJUST;
+            }
+          // ultra.startMeasure();
+          // dist_cm = ultra.getDist_cm();
+
+          // if (dist_cm > 2) {
+          //   motors.moveForward();
+          //   delay(500); // arbitrarily go forward for 500 ms
+          // }
           break;
         case FORWARD_ADJUST:
-          handleForward();
+          motors.moveForward();
           if (C_butt.isPressed()) {
-            handleStop();
+            motors.stopMotors();
             shootStates = SHOOT;
           }
           break;
@@ -236,14 +211,10 @@ void loop() {
 }
 
 void checkGlobalEvents() {
-  STOP_butt.loop();
   ORI_butt.loop();
   L_butt.loop();
   C_butt.loop();
   R_butt.loop();
-
-  ultra.startMeasure();
-  dist_cm = ultra.getDist_cm();
 
   // ends after 2:10, or 130000 ms
   unsigned long curTime = millis();
@@ -252,46 +223,6 @@ void checkGlobalEvents() {
       // ends code
     }
   }
-
-  // emergency stop code
-  if(STOP_butt.isReleased()) {
-    while(true) {
-      // ends code
-    }
-  }
-}
-
-void handleForward() {
-  myMotors1.forward();
-}
-
-void handleTurnLeft() {
-  //assumes this is implemented in driving/turning.
-  //Serial.println("We're moving left. Wahoo!");
-  Serial.println(-1);
-}
-
-void handleTurnRight() {
-  //assumes this is implemented in driving/turning.
-  // Serial.println("We're moving right. Wahoo!");
-  Serial.println(1);
-}
-
-void handleStop() {
-  myMotors1.stop();
-  myMotors2.stop();
-}
-
-void handleStrafeLeft() {
-  // strafe left
-}
-
-void handleStrafeRight() {
-  // strafe right
-}
-
-void handleRotateLeftInPlace() {
-  // rotate left in place
 }
 
 // HC_SR04 code, will go in loop eventually

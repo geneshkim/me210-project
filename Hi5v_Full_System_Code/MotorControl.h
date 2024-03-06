@@ -14,7 +14,7 @@ class MotorControl {
     void strafeRight();
     void stopMotors();
 
-  private:
+  public:
     L298NX2 latMotors;
     L298NX2 longMotors;
 };
