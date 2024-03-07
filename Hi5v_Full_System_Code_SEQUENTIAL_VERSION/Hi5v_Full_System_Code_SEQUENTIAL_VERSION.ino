@@ -16,23 +16,12 @@ ezButton ORI_butt(ORIENT_PIN);
 Servo gateServo;
 Servo celebServo;
 
-enum contact {
+enum states {
   TO_DIAGONAL, // drive to slanted line
-  TO_CONTACT   // follow line to contact
-};
-
-enum shooting {
+  TO_CONTACT,   // follow line to contact
   TO_SHOOT, // driving along wall to shooting zone
   FORWARD_ADJUST,
-  SHOOT, // open gate
-  CELEB, // final celebration
-  FINISH // end code
-};
-
-// tracking which group of states we are in. will definitely grow
-enum stateGroup {
-  contactGroup, // contact zone states
-  shootGroup    // shooting states
+  SHOOT_CELEB // open gate
 };
 
 enum line_following {
@@ -43,12 +32,8 @@ enum line_following {
 };
 
 // initializing state trackers
-shooting shootStates = TO_SHOOT;
-contact contactStates = TO_DIAGONAL;
+states state = TO_DIAGONAL;
 line_following lineStates = STATE_MOVING_FORWARD;
-
-// tracking states
-stateGroup curStateGroup = contactGroup;
 
 // other variables
 bool leftOrRight; // true means strafe right to shooting, false means strafe left
@@ -84,7 +69,6 @@ void setup() {
     celebServo.write(0);
     delay(200);
   }
-
   uint8_t temp = 0;
   while (temp == 0) {
     checkGlobalEvents();
@@ -101,7 +85,7 @@ void setup() {
     if (ORI_butt.isReleased()) {
       motors.stopMotors();
       Serial.println("motors stopped");
-      delay(6000);
+      delay(1000);
       temp += 1;
     }
   }
@@ -109,8 +93,11 @@ void setup() {
   Serial.println("toEdgeCode");
   while(!toEdgeStartZone()) {
   }
-  
-  delay(3000);
+
+  delay(700);
+  motors.moveForward();
+  delay(500);
+  motors.stopMotors();
 
   Serial.println("beginLineFollow");
   while(lineStates != STATE_STOPPED) {
@@ -119,95 +106,91 @@ void setup() {
 
   // to know we are done, for debugging
   delay(1000);
-  motors.rotateLeft();
-  delay(1500);
+  Serial.println("hey");
+  motors.moveForward();
+  delay(1200);
+  Serial.println("ho");
   motors.stopMotors();
-  delay(50000);
 }
 
 void loop() {
-
   checkGlobalEvents();
-  switch (curStateGroup) {
-    case contactGroup:
-      switch (contactStates) {
-        case TO_DIAGONAL:
-        
-          if(toDiagonal()) {
-            contactStates = TO_CONTACT;
-          }
-          break;
-        case TO_CONTACT:
-          Serial.println("end");
-          // lineFollow();
-          // if (C_butt.isPressed()) {
-          //   curStateGroup = shootGroup;
-          // }
-          break;
+  switch (state) {
+    delay(200);
+    motors.moveBackward();
+    delay(1000);
+    motors.stopMotors();
+    case TO_DIAGONAL:
+      Serial.println("TO_DIAGONAL");
+      while(!toEdgeStartZone()) {
       }
-
-    case shootGroup:
-      switch (shootStates) {
-        case TO_SHOOT:
-          /* code for not knowing the correct side
-          if (leftOrRight) {
-            motors.strafeRight();
-            if (R_butt.isPressed()) {
-              motors.stopMotors();
-              shootStates = FORWARD_ADJUST;
-            }
-          } else {
-            motors.strafeLeft();
-            if (L_butt.isPressed()) {
-              motors.stopMotors();
-              shootStates = FORWARD_ADJUST;
-            }
-          }
-          */
-          // code for assuming starting on left side (A-side), thus strafe left
-          // motors.strafeLeft();
-          //   if (L_butt.isPressed()) {
-          //     motors.stopMotors();
-          //     shootStates = FORWARD_ADJUST;
-          //   }
-          // ultra.startMeasure();
-          // dist_cm = ultra.getDist_cm();
-
-          // if (dist_cm > 2) {
-          //   motors.moveForward();
-          //   delay(500); // arbitrarily go forward for 500 ms
-          // }
-          break;
-        case FORWARD_ADJUST:
-          motors.moveForward();
-          // if (C_butt.isPressed()) {
-          //   motors.stopMotors();
-          //   shootStates = SHOOT;
-          // }
-          break;
-        case SHOOT:
-          gateServo.write(180); // open position
-          delay(3000);
-          gateServo.write(90); // back to blocking
-          delay(100);
-          shootStates = CELEB;
-          break;
-        case CELEB:
-          // blocking code while celebrating
-          for (int i = 0; i < 3; i++) {
-            celebServo.write(180);
-            delay(200);
-            celebServo.write(0);
-            delay(200);
-          }
-          shootStates = FINISH;
-          break;
-        case FINISH:
-          while(true) {
-            // ends code
-          }
+      Serial.println("BACK TO DIAGONAL");
+      while(!backToEdgeStartZone()) {
       }
+      // not implementing  states
+      delay(500);
+      motors.rotateRight();
+      delay(700);
+      motors.stopMotors();
+      delay(500);
+      Serial.println("FINAL LINE FOLLOW");
+      lineStates = STATE_MOVING_FORWARD;
+      while(lineStates != STATE_STOPPED) {
+        lineFollow();
+      }
+      Serial.println("DONE");
+
+      state = TO_CONTACT;
+      break;
+
+    case TO_CONTACT:
+      delay(1000);
+      motors.rotateRight();
+      delay(500);
+      motors.stopMotors();
+      lineStates = STATE_MOVING_FORWARD;
+      while(lineStates != STATE_STOPPED) {
+        lineFollow();
+      }
+      // lineFollow();
+      // if (C_butt.isPressed()) {
+      //   curStateGroup = shootGroup;
+      // }
+      break;
+
+    case TO_SHOOT:
+      // code for assuming starting on left side (A-side), thus strafe left
+      motors.strafeLeft();
+      delay(3000);
+      state = FORWARD_ADJUST;
+        // if (L_butt.isPressed()) {
+        //   motors.stopMotors();
+        //   state = FORWARD_ADJUST;
+        // }
+      break;
+
+    case FORWARD_ADJUST:
+      motors.moveForward();
+      delay(1000);
+      state = SHOOT_CELEB;
+      break;
+
+    case SHOOT_CELEB:
+      gateServo.write(180); // open position
+      delay(3000);
+      gateServo.write(90); // back to blocking
+      delay(100);
+
+      Serial.println("celebrating");
+      for (int i = 0; i < 3; i++) {
+        celebServo.write(180);
+        delay(200);
+        celebServo.write(0);
+        delay(200);
+      }
+      break;
   }
+  while(true){}
 }
 
 void checkGlobalEvents() {

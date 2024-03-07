@@ -36,8 +36,18 @@ static void respToMidIsOnTape();
 static void respToAllAreOnTape();
 
 bool toEdgeStartZone() {
-  motors.moveForward();
   checkLineEvents();
+  motors.moveForward();
+  if (allAreOnTape) {
+    respToAllAreOnTape();
+    return true;
+  }
+  return false;
+}
+
+bool backToEdgeStartZone() {
+  checkLineEvents();
+  motors.moveBackward();
   if (allAreOnTape) {
     respToAllAreOnTape();
     return true;
@@ -48,12 +58,17 @@ bool toEdgeStartZone() {
 bool toDiagonal() {
   motors.moveForward();
   checkLineEvents();
-  if (leftIsOnTape) {
+  if (true) {
     leftOrRight = false;
     motors.stopMotors();
     return true;
   }
   if (rightIsOnTape) {
+    leftOrRight = true;
+    motors.stopMotors();
+    return true;
+  }
+  if (midIsOnTape) {
     leftOrRight = true;
     motors.stopMotors();
     return true;

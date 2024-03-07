@@ -42,8 +42,8 @@ Intended to be used in other .ino sketches for modularity.
 #define IN2_RightMotor   8
 #define EN_RightMotor    6
 
-#define longSpeed        125
-#define latSpeed         125
+#define longSpeed        160
+#define latSpeed         160
 
 /*
 Constructor for motor control
@@ -71,7 +71,7 @@ void MotorControl::moveBackward() {
 }
 
 void MotorControl::rotateLeft() {
-  longMotors.setSpeed(110);
+  longMotors.setSpeed(140);
   latMotors.setSpeed(0);
   longMotors.forwardA();
   longMotors.backwardB();
@@ -79,7 +79,7 @@ void MotorControl::rotateLeft() {
 }
 
 void MotorControl::rotateRight() {
-  longMotors.setSpeed(longSpeed);
+  longMotors.setSpeed(140);
   latMotors.setSpeed(0);
   longMotors.forwardB();
   longMotors.backwardA();
@@ -101,9 +101,7 @@ void MotorControl::strafeRight() {
 }
 
 void MotorControl::stopMotors() {
-  longMotors.setSpeed(0);
-  latMotors.setSpeed(0);
-  longMotors.forward();
-  latMotors.forward();
+  longMotors.stop();
+  latMotors.stop();
   // Serial.println("State: Stopping");
 }
