@@ -71,7 +71,7 @@ void MotorControl::moveBackward() {
 }
 
 void MotorControl::rotateLeft() {
-  longMotors.setSpeed(135);
+  longMotors.setSpeed(145);
   latMotors.setSpeed(0);
   longMotors.forwardA();
   longMotors.backwardB();
@@ -79,7 +79,7 @@ void MotorControl::rotateLeft() {
 }
 
 void MotorControl::rotateRight() {
-  longMotors.setSpeed(135);
+  longMotors.setSpeed(145);
   latMotors.setSpeed(0);
   longMotors.forwardB();
   longMotors.backwardA();

@@ -17,10 +17,9 @@ Servo gateServo;
 Servo celebServo;
 
 enum states {
-  TO_DIAGONAL, // drive to slanted line
-  TO_CONTACT,   // follow line to contact
+  TO_DIAGONAL_THEN_CONTACT, // to diagonal, then strafe to contact
   TO_SHOOT, // driving along wall to shooting zone
-  FORWARD_ADJUST,
+  LEFT_ADJUST,
   SHOOT_CELEB // open gate
 };
 
@@ -32,7 +31,7 @@ enum line_following {
 };
 
 // initializing state trackers
-states state = TO_DIAGONAL;
+states state = TO_DIAGONAL_THEN_CONTACT;
 line_following lineStates = STATE_MOVING_FORWARD;
 
 // other variables
@@ -76,47 +75,39 @@ void setup() {
 void loop() {
   checkGlobalEvents();
   switch (state) {
-    case TO_DIAGONAL:
-      if (toEdgeStartZone()) {
-        // adjust backwards to properly line follow
-        motors.moveBackward();
-        delay(500);
-        motors.stopMotors();
-        delay(300);
-        motors.rotateRight();
-        delay(700);
-        motors.stopMotors();
-        delay(500);
-        lineStates = STATE_MOVING_FORWARD;
-        state = TO_CONTACT;
+    case TO_DIAGONAL_THEN_CONTACT:
+      Serial.println("to any edge");
+      while (!toAnyEdgeDetected()) {
+        // empty
       }
-      break;
+      delay(500);
+      Serial.println("strafe left 5 seconds");
+      motors.strafeLeft();
+      delay(2500);
+      Serial.println("STOP");
+      motors.stopMotors();
+      delay(500);
 
-    case TO_CONTACT:
-      lineFollow();
-      if (lineStates == STATE_STOPPED) {
-        state = TO_SHOOT;
-      }
-      // lineFollow();
-      // if (C_butt.isPressed()) {
-      //   curStateGroup = shootGroup;
-      // }
+      state = TO_SHOOT;
       break;
 
     case TO_SHOOT:
-      // code for assuming starting on left side (A-side), thus strafe left
-      motors.strafeRight();
-      delay(3000);
-      state = FORWARD_ADJUST;
+      // new code moving forward along wall
+      motors.moveForward();
+      delay(2200);
+      motors.stopMotors();
+      delay(500);
+      state = LEFT_ADJUST;
         // if (L_butt.isPressed()) {
         //   motors.stopMotors();
         //   state = FORWARD_ADJUST;
         // }
       break;
 
-    case FORWARD_ADJUST:
-      motors.moveForward();
-      delay(1000);
+    case LEFT_ADJUST:
+      motors.strafeLeft();
+      delay(600);
+      motors.stopMotors();
       state = SHOOT_CELEB;
       break;
 

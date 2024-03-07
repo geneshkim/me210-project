@@ -45,6 +45,16 @@ bool toEdgeStartZone() {
   return false;
 }
 
+bool toAnyEdgeDetected() {
+  checkLineEvents();
+  motors.moveForward();
+  if (leftIsOnTape || midIsOnTape || rightIsOnTape) {
+    motors.stopMotors(); // Assuming stopping is the desired response
+    return true;
+  }
+  return false;
+}
+
 bool backToEdgeStartZone() {
   checkLineEvents();
   motors.moveBackward();
