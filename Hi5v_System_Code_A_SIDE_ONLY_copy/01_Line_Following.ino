@@ -87,8 +87,9 @@ void lineFollow() {
       } else if (rightIsOnTape) {
         respToRightIsOnTape();
         lineStates = STATE_TURNING_RIGHT;
-      //} else if (!midIsOnTape) {
-        //lineStates = STATE_STOPPED;
+      } else if (midIsOnTape) {
+        respToMidIsOnTape();
+        lineStates = STATE_MOVING_FORWARD;
       } else {
         lineStates = STATE_MOVING_FORWARD;
       }

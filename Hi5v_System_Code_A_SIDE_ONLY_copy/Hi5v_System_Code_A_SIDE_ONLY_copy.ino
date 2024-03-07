@@ -56,6 +56,7 @@ void setup() {
 
   gateServo.write(90); //  set to blocking position
 
+
   // IR pins. Rest of IR initializiation in Line_Following.ino
   pinMode(LEFT_IR_PIN, INPUT);
   pinMode(RIGHT_IR_PIN, INPUT);
@@ -82,8 +83,8 @@ void loop() {
       }
       delay(500);
       // Serial.println("strafe right 1.5 seconds");
-      motors.strafeRight();
-      delay(1500);
+      motors.strafeLeft();
+      delay(1800);
       // Serial.println("STOP");
       motors.stopMotors();
       delay(500);
@@ -93,7 +94,7 @@ void loop() {
     case TO_SHOOT:
       // new code moving forward along wall
       // Serial.print("FORWARD ALONG WALL");
-      motors.strafeLeft();
+      motors.strafeRight();
       delay(250);
       motors.stopMotors();
       delay(300);
@@ -109,17 +110,23 @@ void loop() {
       break;
 
     case LEFT_ADJUST:
-      motors.strafeRight(); // actually doing A-side now oopsies
-      delay(500);
+      motors.rotateLeft();
+      delay(700);
+      motors.stopMotors();
+      delay(200);
+      motors.moveForward();
+      delay(300);
       motors.stopMotors();
       state = SHOOT_CELEB;
       break;
 
     case SHOOT_CELEB:
-      gateServo.write(180); // open position
-      delay(3000);
-      gateServo.write(90); // back to blocking
-      delay(100);
+      for (int i = 0; i < 3; i++) {
+        gateServo.write(180);
+        delay(400);
+        gateServo.write(0);
+        delay(400);
+      }
 
       Serial.println("celebrating");
       for (int i = 0; i < 3; i++) {
@@ -148,6 +155,12 @@ void checkGlobalEvents() {
 }
 
 void toTZone() {
+  // wave hello code
+  celebServo.write(180);
+  delay(200);
+  celebServo.write(0);
+  delay(200);
+
   uint8_t temp = 0;
   while (temp == 0) {
     checkGlobalEvents();

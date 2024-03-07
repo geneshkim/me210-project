@@ -42,8 +42,8 @@ Intended to be used in other .ino sketches for modularity.
 #define IN2_RightMotor   8
 #define EN_RightMotor    6
 
-#define longSpeed        145
-#define latSpeed         145
+#define longSpeed        180
+#define latSpeed         180
 
 /*
 Constructor for motor control
