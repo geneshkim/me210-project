@@ -53,9 +53,8 @@ void setup() {
 
   gateServo.attach(GATE_SERVO_PIN);
   celebServo.attach(CELEB_SERVO_PIN);
-
-  gateServo.write(90); //  set to blocking position
-
+  
+  gateServo.write(0);
 
   // IR pins. Rest of IR initializiation in Line_Following.ino
   pinMode(LEFT_IR_PIN, INPUT);
@@ -70,6 +69,8 @@ void setup() {
   //   delay(200);
   // }
   delay(1000);
+
+
   toTZone();
 }
 
@@ -81,11 +82,15 @@ void loop() {
       while (!toAnyEdgeDetected()) {
         // empty
       }
+      delay(300);
+      while (!backToAnyEdgeDetected()) {
+        // empty
+      }
+
       delay(500);
       // Serial.println("strafe right 1.5 seconds");
-      motors.strafeLeft();
-      delay(1800);
-      // Serial.println("STOP");
+      motors.strafeRight();
+      delay(1000);
       motors.stopMotors();
       delay(500);
       state = TO_SHOOT;
@@ -94,12 +99,16 @@ void loop() {
     case TO_SHOOT:
       // new code moving forward along wall
       // Serial.print("FORWARD ALONG WALL");
-      motors.strafeRight();
-      delay(250);
+      // motors.strafeLeft();
+      // delay(400);
+      // motors.stopMotors();
+      // delay(300);
+      motors.moveForward();
+      delay(1200);
       motors.stopMotors();
       delay(300);
-      motors.moveForward();
-      delay(2500);
+      motors.moveForwardSlow();
+      delay(1100);
       motors.stopMotors();
       delay(300);
       state = LEFT_ADJUST;
@@ -110,23 +119,30 @@ void loop() {
       break;
 
     case LEFT_ADJUST:
-      motors.rotateLeft();
-      delay(700);
-      motors.stopMotors();
+      motors.moveBackward();
       delay(200);
-      motors.moveForward();
+      motors.stopMotors();
+      delay(100);
+      motors.rotateRight();
+      delay(650);
+      motors.stopMotors();
       delay(300);
+      motors.moveForwardSlow();
+      delay(1100);
       motors.stopMotors();
       state = SHOOT_CELEB;
       break;
 
     case SHOOT_CELEB:
-      for (int i = 0; i < 3; i++) {
-        gateServo.write(180);
-        delay(400);
-        gateServo.write(0);
-        delay(400);
-      }
+      gateServo.write(90);
+      delay(3000);
+      gateServo.write(0);
+      delay(500);
+      gateServo.write(90);
+      delay(3000);
+      gateServo.write(0);
+      delay(500);
+      gateServo.write(90);
 
       Serial.println("celebrating");
       for (int i = 0; i < 3; i++) {

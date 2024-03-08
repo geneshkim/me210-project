@@ -6,6 +6,9 @@
 class MotorControl {
   public:
     MotorControl(); // Constructor
+    void moveForwardSlow();
+    void rotateLeftSlow();
+    void rotateRightSlow();
     void moveForward();
     void moveBackward();
     void rotateLeft();

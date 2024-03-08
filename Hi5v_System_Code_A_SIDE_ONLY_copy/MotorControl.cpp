@@ -38,12 +38,12 @@ Intended to be used in other .ino sketches for modularity.
 #define IN1_LeftMotor   A5 // in1 and in2 control motor direction (okay for these to be synched)
 #define IN2_LeftMotor   7
 #define EN_LeftMotor    6
-#define IN1_RightMotor   A4
-#define IN2_RightMotor   8
+#define IN1_RightMotor   8
+#define IN2_RightMotor   A4
 #define EN_RightMotor    6
 
-#define longSpeed        180
-#define latSpeed         180
+#define longSpeed        175
+#define latSpeed         215
 
 /*
 Constructor for motor control
@@ -56,6 +56,29 @@ MotorControl::MotorControl():
 {
 }
 
+void MotorControl::moveForwardSlow() {
+  longMotors.setSpeed(150);
+  latMotors.setSpeed(0);
+  longMotors.forward();
+  // Serial.println("State: Moving Forward");
+}
+
+void MotorControl::rotateLeftSlow() {
+  longMotors.setSpeed(150);
+  latMotors.setSpeed(0);
+  longMotors.forwardA();
+  longMotors.backwardB();
+  // Serial.println("State: Turning Left");
+}
+
+void MotorControl::rotateRightSlow() {
+  longMotors.setSpeed(150);
+  latMotors.setSpeed(0);
+  longMotors.forwardB();
+  longMotors.backwardA();
+  // Serial.println("State: Turning Right");
+}
+
 void MotorControl::moveForward() {
   longMotors.setSpeed(longSpeed);
   latMotors.setSpeed(0);
@@ -64,7 +87,7 @@ void MotorControl::moveForward() {
 }
 
 void MotorControl::moveBackward() {
-  longMotors.setSpeed(longSpeed);
+  longMotors.setSpeed(150);
   latMotors.setSpeed(0);
   longMotors.backward();
   // Serial.println("State: Moving Backward");
@@ -77,6 +100,7 @@ void MotorControl::rotateLeft() {
   longMotors.backwardB();
   // Serial.println("State: Turning Left");
 }
+
 
 void MotorControl::rotateRight() {
   longMotors.setSpeed(longSpeed);

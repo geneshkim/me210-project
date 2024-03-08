@@ -13,7 +13,7 @@
 #define CELEB_SERVO_PIN 9 // PWM pin
 
 //define constants and analog pins to read IR sensor values/enable pin to turn on/off IR sensing
-#define LIGHT_THRESHOLD   485  //empirically determined: if IR reading is higher than threshold, that sensor is on the tape.
+#define LIGHT_THRESHOLD   390  //empirically determined: if IR reading is higher than threshold, that sensor is on the tape.
 #define LEFT_IR_PIN       A0   
 #define MID_IR_PIN        A1   
 #define RIGHT_IR_PIN      A2   

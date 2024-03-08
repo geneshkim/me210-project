@@ -37,7 +37,7 @@ static void respToAllAreOnTape();
 
 bool toEdgeStartZone() {
   checkLineEvents();
-  motors.moveForward();
+  motors.moveForwardSlow();
   if (allAreOnTape) {
     respToAllAreOnTape();
     return true;
@@ -47,7 +47,7 @@ bool toEdgeStartZone() {
 
 bool toAnyEdgeDetected() {
   checkLineEvents();
-  motors.moveForward();
+  motors.moveForwardSlow();
   if (leftIsOnTape || midIsOnTape || rightIsOnTape) {
     motors.stopMotors(); // Assuming stopping is the desired response
     return true;
@@ -55,11 +55,11 @@ bool toAnyEdgeDetected() {
   return false;
 }
 
-bool backToEdgeStartZone() {
+bool backToAnyEdgeDetected() {
   checkLineEvents();
   motors.moveBackward();
-  if (allAreOnTape) {
-    respToAllAreOnTape();
+  if (leftIsOnTape || midIsOnTape || rightIsOnTape) {
+    motors.stopMotors(); // Assuming stopping is the desired response
     return true;
   }
   return false;
@@ -92,6 +92,7 @@ void lineFollow() {
         lineStates = STATE_MOVING_FORWARD;
       } else {
         lineStates = STATE_MOVING_FORWARD;
+        motors.rotateLeftSlow();
       }
       break;
     case STATE_TURNING_LEFT:
@@ -101,7 +102,7 @@ void lineFollow() {
       } else if (leftIsOnTape) {
         lineStates = STATE_TURNING_LEFT;
       } else {
-        motors.moveForward();
+        motors.moveForwardSlow();
         lineStates = STATE_MOVING_FORWARD;
       }
       break;
@@ -112,7 +113,7 @@ void lineFollow() {
       } else if (rightIsOnTape) {
         lineStates = STATE_TURNING_RIGHT;
       } else {
-        motors.moveForward();
+        motors.moveForwardSlow();
         lineStates = STATE_MOVING_FORWARD;
       }
       break;
@@ -157,15 +158,15 @@ bool testForAllAreOnTape() {
 }
 
 void respToLeftIsOnTape() {
-  motors.rotateLeft();
+  motors.rotateLeftSlow();
 }
 
 void respToRightIsOnTape() {
-  motors.rotateRight();
+  motors.rotateRightSlow();
 }
 
 void respToMidIsOnTape() {
-  motors.moveForward();
+  motors.moveForwardSlow();
 }
 
 void respToAllAreOnTape() {
